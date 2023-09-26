@@ -14,7 +14,13 @@
     "@ant-design/icons": "^4.7.0",
     "@ant-design/pro-components": "^2.0.1",
     "@umijs/max": "^4.0.39",
-    "antd": "^5.0.0"
+    "ahooks": "^3.7.4",
+    "antd": "^5.3.1",
+    "graphql": "^16.6.0",
+    "graphql-request": "^5.1.0",
+    "lodash": "^4.17.21",
+    "rc-motion": "^2.6.3",
+    "rc-queue-anim": "^2.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

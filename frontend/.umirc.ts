@@ -12,12 +12,7 @@ export default defineConfig({
   routes: [
     {
       path: '/',
-      redirect: '/home',
-    },
-    {
-      name: 'Home',
-      path: '/home',
-      component: './Home',
+      component: './index',
     },
   ],
   npmClient: 'yarn',
