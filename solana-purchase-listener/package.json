@@ -21,12 +21,23 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/bull": "^10.0.1",
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/typeorm": "^10.0.0",
+    "@solana/web3.js": "^1.78.5",
+    "axios": "^1.5.0",
+    "bull": "^4.11.3",
+    "https-proxy-agent": "^7.0.2",
+    "mysql2": "^3.6.1",
+    "node-global-proxy": "^1.0.1",
+    "proxy-agent": "^6.3.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "typeorm": "^0.3.17"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
