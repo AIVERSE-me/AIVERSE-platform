@@ -8,7 +8,7 @@ import {
   } from 'typeorm';
   
   @Entity()
-  export class SolanaNep17Transfer {
+  export class SolanaTokenTransfer {
     @PrimaryGeneratedColumn()
     id: number;
   
@@ -38,8 +38,8 @@ import {
     @Column({ length: 128 })
     amount: string;
   
-    @Column()
-    timestamp: Date;
+    @Column({ length: 128 })
+    timestamp: string;
   
     @CreateDateColumn()
     createTime: Date;
