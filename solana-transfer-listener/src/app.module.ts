@@ -3,7 +3,7 @@ import { CommonModule } from './common/common.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
-import { SolanaChannelModule } from './solana-channel/solana-channel.module';
+import { SolanaNftTransferModule } from './solana-nft-transfer/solana-nft-transfer.module';
 
 @Module({
   imports: [
@@ -26,7 +26,6 @@ import { SolanaChannelModule } from './solana-channel/solana-channel.module';
         };
       },
     }),
-
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -41,7 +40,7 @@ import { SolanaChannelModule } from './solana-channel/solana-channel.module';
       },
     }),
     CommonModule,
-    SolanaChannelModule,
+    SolanaNftTransferModule,
   ],
 })
 export class AppModule {}
