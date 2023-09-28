@@ -16,11 +16,13 @@
     "@umijs/max": "^4.0.39",
     "ahooks": "^3.7.4",
     "antd": "^5.3.1",
+    "browser-image-compression": "^2.0.2",
     "graphql": "^16.6.0",
     "graphql-request": "^5.1.0",
     "lodash": "^4.17.21",
     "rc-motion": "^2.6.3",
-    "rc-queue-anim": "^2.0.0"
+    "rc-queue-anim": "^2.0.0",
+    "react-masonry-css": "^1.0.16"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

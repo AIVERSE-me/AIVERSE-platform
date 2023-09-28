@@ -1,0 +1,232 @@
+.inputImageWrapper {
+  position: relative;
+  width: 100%;
+  .inputImage {
+    border-radius: 8px;
+    height: 150px;
+  }
+  .inputImagesRow {
+    height: 0px;
+    min-height: 150px;
+    max-height: 150px;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    column-gap: 12px;
+  }
+  .end {
+    position: absolute;
+    background: linear-gradient(to right, transparent 0%, #000 100%);
+    right: 0;
+    top: 0;
+    z-index: 100;
+    width: 150px;
+    height: 100%;
+  }
+}
+
+.generatingContainer {
+  margin-top: 24px;
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  transition: 1s ease-in-out;
+  //height: 512px;
+  //display: flex;
+  //justify-content: center;
+
+  img {
+    display: block;
+    margin: 0 auto;
+    width: 512px;
+    height: 512px;
+    border-radius: 8px;
+  }
+
+  .outputErrorCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    width: 512px;
+    height: 512px;
+    border-radius: 8px;
+
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .desc {
+      font-size: 16px;
+      color: rgb(255 255 255 / 65%);
+    }
+  }
+}
+
+.generatingContainer {
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  transition: 1s ease-in-out;
+  //height: 512px;
+  //display: flex;
+  //justify-content: center;
+
+  img {
+    display: block;
+    margin: 0 auto;
+    width: auto;
+    height: 512px;
+    border-radius: 8px;
+  }
+
+  .outputErrorCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    width: 512px;
+    height: 512px;
+    border-radius: 8px;
+
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .desc {
+      font-size: 16px;
+      color: rgb(255 255 255 / 65%);
+    }
+  }
+}
+
+.inputImage {
+  border-radius: 8px;
+  height: 100%;
+}
+
+.title {
+  margin-top: 24px;
+  //margin-bottom: 6px;
+
+  div:first-child {
+    color: rgb(255 255 255 / 85%);
+    font-size: 18px;
+    font-weight: bold;
+    .icon {
+      margin-right: 6px;
+    }
+  }
+
+  div:last-child {
+    color: rgb(255 255 255 / 65%);
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+}
+
+.actions {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  column-gap: 12px;
+  margin-bottom: 24px;
+}
+
+.exampleCard {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 3px solid transparent;
+  transition: border-color 0.3s ease;
+  background: #1f1f1f;
+
+  .exampleImg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    //height: 150px;
+    //width: auto;
+    display: block;
+    z-index: 9;
+  }
+  .priceMask {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 60%,
+      rgba(0, 0, 0, 0.95) 100%
+    );
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-size: 12px;
+    box-sizing: border-box;
+    padding-bottom: 4px;
+    font-weight: bold;
+    text-align: center;
+    color: #fab018;
+    &.free {
+      color: #49aa19;
+    }
+  }
+}
+.exampleCard.selected {
+  border-color: #faad14;
+}
+
+.trainingSetTitle {
+  margin-top: 24px;
+  margin-bottom: 6px;
+  color: rgb(255 255 255 / 85%);
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.trainingSetIcon {
+  transition: all 0.3s ease;
+  transform: rotate(90deg);
+  margin-right: 6px;
+}
+
+.generateButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modelTitle {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
