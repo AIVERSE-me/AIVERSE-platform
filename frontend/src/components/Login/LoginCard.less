@@ -1,0 +1,62 @@
+.card {
+  border-radius: 8px;
+  padding: 36px;
+  width: 300px;
+  margin: 0 auto;
+}
+.cardMobile {
+  .card;
+  padding: 24px;
+  width: auto;
+}
+.cardBorder {
+  border: 1px solid #303030;
+}
+.cardCentered {
+  margin-top: 30vh;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 28px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.loginBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  column-gap: 8px;
+  border-radius: 19px;
+  cursor: pointer;
+  font-size: 16px;
+  color: rgb(255 255 255 / 95%);
+  transition: all 0.3s ease;
+  font-weight: bold;
+  text-decoration: none;
+}
+.loginBtn:hover {
+  opacity: 0.85;
+}
+.loginBtn:not(:last-child) {
+  margin-bottom: 12px;
+}
+
+.loginBtnDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.loginBtnDisabled:hover {
+  opacity: 0.5;
+}
+
+.logo {
+  height: 19px;
+}
+.loading {
+  position: absolute;
+  left: 19px;
+}

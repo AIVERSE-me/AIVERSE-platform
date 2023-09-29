@@ -1,0 +1,192 @@
+.rowBetween {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.pointBtn {
+  position: relative;
+  z-index: 100;
+  border-radius: 24px;
+  padding: 6px 16px;
+  width: fit-content;
+  line-height: 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  color: rgb(255 255 255 / 95%);
+  //background: #d89614;
+  background: #fab018;
+  text-shadow: 1px 1px 2px #f8661b;
+}
+.pointBtn:hover {
+  opacity: 0.85;
+}
+
+@color-eth: #ff7324;
+@color-neo: #03c685;
+@color-wechat: #00bc0c;
+
+.priceCard {
+  position: relative;
+  height: 216px;
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 18px;
+  transition: all 0.3s ease;
+  background-color: rgb(255 255 255 / 15%);
+  opacity: 0.5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: rgb(255 255 255);
+  overflow: hidden;
+
+  .point {
+    font-size: 14px;
+    //font-weight: bold;
+  }
+  .price {
+    width: 100%;
+    border-bottom: 1px solid rgb(255 255 255 / 25%);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .priceUnit {
+    margin-left: 5px;
+  }
+  .total {
+    width: 100%;
+    border-top: 1px solid rgb(255 255 255 / 25%);
+    margin-top: 12px;
+    padding-top: 12px;
+    text-align: center;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+.priceCard:hover {
+  opacity: 1;
+  transform: translateY(-4px);
+  //background-color: #d89614;
+  &.eth {
+    background-color: @color-eth;
+  }
+  &.neo {
+    background-color: @color-neo;
+  }
+  &.wechat {
+    background-color: @color-wechat;
+  }
+}
+
+.priceCardSelected {
+  opacity: 1;
+  //background-color: #d89614;
+  &.eth {
+    background-color: @color-eth;
+  }
+  &.neo {
+    background-color: @color-neo;
+  }
+  &.wechat {
+    background-color: @color-wechat;
+  }
+}
+
+.purchaseBtn {
+  position: absolute;
+  border-radius: 16px;
+  height: 36px;
+  width: calc(100% - 24px) !important;
+  font-size: 16px;
+  font-weight: bold;
+  left: 12px;
+  bottom: -36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  background-color: rgba(#faad14, 0.5);
+  box-shadow: 7px 7px 12px rgba(#2b2111, 0.4), -7px -7px 12px rgba(#e8b339, 0.4),
+    inset 0 0 0px rgba(#e8b339, 0.4), inset 0 0 0 rgba(#2b2111, 0.4);
+
+  &.eth {
+    background-color: rgba(@color-eth, 0.5);
+    box-shadow: 7px 7px 12px rgba(#2c1a12, 0.4),
+      -7px -7px 12px rgba(#e88747, 0.4), inset 0 0 0px rgba(#e88747, 0.4),
+      inset 0 0 0 rgba(#2c1a12, 0.4);
+  }
+  &.neo {
+    background-color: rgba(@color-neo, 0.5);
+    box-shadow: 7px 7px 12px rgba(#112822, 0.4),
+      -7px -7px 12px rgba(#25dc99, 0.4), inset 0 0 0px rgba(#25dc99, 0.4),
+      inset 0 0 0 rgba(#112822, 0.4);
+  }
+  &.wechat {
+    background-color: rgba(@color-wechat, 0.5);
+    box-shadow: 7px 7px 12px rgba(#002407, 0.4),
+      -7px -7px 12px rgba(#45d645, 0.4), inset 0 0 0px rgba(#45d645, 0.4),
+      inset 0 0 0 rgba(#002407, 0.4);
+  }
+}
+.purchaseBtn:active {
+  box-shadow: 0 0 0 rgba(#2b2111, 0.4), 0 0 0 rgba(#e8b339, 0.4),
+    inset -7px -7px 12px rgba(#e8b339, 0.4),
+    inset 7px 7px 12px rgba(#2b2111, 0.4);
+  &.eth {
+    box-shadow: 0 0 0 rgba(#2c1a12, 0.4), 0 0 0 rgba(#e88747, 0.4),
+      inset -7px -7px 12px rgba(#e88747, 0.4),
+      inset 7px 7px 12px rgba(#2c1a12, 0.4);
+  }
+  &.neo {
+    box-shadow: 0 0 0 rgba(#112822, 0.4), 0 0 0 rgba(#25dc99, 0.4),
+      inset -7px -7px 12px rgba(#25dc99, 0.4),
+      inset 7px 7px 12px rgba(#112822, 0.4);
+  }
+  &.wechat {
+    box-shadow: 0 0 0 rgba(#002407, 0.4), 0 0 0 rgba(#45d645, 0.4),
+      inset -7px -7px 12px rgba(#45d645, 0.4),
+      inset 7px 7px 12px rgba(#002407, 0.4);
+  }
+}
+.purchaseBtnLoading {
+  box-shadow: none;
+  //background-color: #d89614;
+  //opacity: 0.85;
+  &.eth {
+    background-color: @color-eth;
+  }
+  &.neo {
+    background-color: @color-neo;
+  }
+  &.wechat {
+    background-color: @color-wechat;
+  }
+}
+
+.pointConfetti {
+  position: absolute;
+  top: 0;
+  z-index: 50;
+  width: 400px;
+  height: 384px;
+  right: 0;
+}
+
+.unitIcon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  margin-right: 6px;
+}
