@@ -1,0 +1,43 @@
+.pointBtnList {
+  margin: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  column-gap: 12px;
+  position: relative;
+  z-index: 10;
+}
+.pointBtn {
+  border-radius: 24px;
+  padding: 6px 16px;
+  width: fit-content;
+  line-height: 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+.pointBtn:hover {
+  opacity: 0.85;
+}
+.buyPoint {
+  padding: 0;
+  height: 36px;
+  color: rgb(255 255 255 / 95%);
+  position: relative;
+  .text {
+    position: absolute;
+    width: fit-content;
+    white-space: nowrap;
+    text-shadow: 1px 1px 2px #f8661b;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.myPoint {
+  color: rgb(255 255 255 / 95%);
+  background: #fab018;
+  text-shadow: 1px 1px 2px #f8661b;
+}

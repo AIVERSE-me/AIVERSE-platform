@@ -1,0 +1,32 @@
+.point-notice {
+  position: fixed;
+  z-index: 110;
+  display: flex;
+  //max-height: 100vh;
+  //padding: 10px;
+  overflow-y: auto;
+  align-items: flex-end;
+  top: 20px;
+
+  &-fade {
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  &-fade-appear-start {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  &-fade-appear-active {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.point {
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(255 255 255 / 85%);
+  transition: all 0.3s ease;
+}

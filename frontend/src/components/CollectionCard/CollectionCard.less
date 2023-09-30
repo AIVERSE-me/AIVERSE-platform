@@ -1,0 +1,140 @@
+.collectionCard {
+  cursor: pointer;
+  border-radius: 8px;
+  position: relative;
+  background: rgb(255 255 255 / 10%);
+  overflow: hidden;
+  display: flex;
+  padding-bottom: 48px;
+}
+.collectionCardCover {
+  width: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+.nftCover {
+  transition: all 0.5s ease-in-out;
+  top: 0;
+  right: -100%;
+  position: absolute;
+  width: 100%;
+  object-fit: contain;
+  cursor: pointer;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+.promptOutput {
+  transition: all 0.5s ease-in-out;
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  background: rgb(0 0 0 / 85%);
+  opacity: 0;
+  border-radius: 8px;
+}
+
+.cover {
+  min-height: 10px;
+  width: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.coverMask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+}
+
+.prompt {
+  position: absolute;
+  padding: 18px;
+  top: 0;
+  left: 0;
+  width: calc(100% - 36px);
+  height: calc(100% - 36px);
+  z-index: 10;
+  overflow: hidden;
+  font-size: 16px;
+  color: rgb(255 255 255 / 85%);
+  display: flex;
+  flex-direction: column;
+}
+.promptTitle {
+  margin-right: 8px;
+  color: rgb(255 255 255 / 65%);
+}
+.promptModel {
+  font-weight: bold;
+  font-size: 16px;
+}
+.promptContent {
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+.collectionCardActionRow {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background: rgb(0 0 0 / 50%);
+  position: absolute;
+  bottom: 0;
+  width: calc(100% - 24px);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 12px;
+}
+.collectionCardActionItem {
+  cursor: pointer;
+  font-size: 20px;
+  //color: rgb(255 255 255 / 65%);
+  opacity: 0.85;
+  transition: all 0.3s ease;
+  //margin-left: 24px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.collectionCardActionItem:hover {
+  //color: rgb(255 255 255 / 85%);
+  opacity: 1;
+}
+.collectionCardActionItemDisabled {
+  cursor: auto;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  color: rgb(255 255 255 / 35%);
+}
+
+.badge {
+  position: absolute;
+  top: -10px;
+  left: 0px;
+  padding: 1px 2px;
+  font-size: 10px;
+  font-weight: bold;
+  background: #cb2b83;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.gotoTooltip {
+  display: flex;
+  align-items: center;
+}
+.votes {
+  display: flex;
+  column-gap: 2px;
+  align-items: end;
+}
