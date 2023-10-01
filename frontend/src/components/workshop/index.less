@@ -1,0 +1,141 @@
+.configSubItem {
+  margin-bottom: 12px;
+}
+
+.subTitle {
+  margin-bottom: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgb(255 255 255 / 85%);
+}
+
+.sizeCards {
+  display: flex;
+  align-items: center;
+  column-gap: 12px;
+}
+.sizeCard {
+  border-radius: 8px;
+  background: #162312;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  font-size: 14px;
+  row-gap: 6px;
+  transition: border-color 0.3s ease;
+  border: 2px solid transparent;
+  font-weight: bold;
+  .sizeCardRectWrapper {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sizeCardRect {
+    border-radius: 2px;
+    background: #49aa19;
+  }
+}
+//.sizeCard:hover {
+//  border-color: #49aa19;
+//}
+.sizeCardSelected {
+  border-color: #49aa19;
+}
+
+.uploadCard {
+  cursor: pointer;
+  width: 350px;
+  height: 350px;
+  border-radius: 8px;
+  border: 2px dashed #e2e2e2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.uploadImageWrapper {
+  position: relative;
+  width: 350px;
+  height: 350px;
+}
+.uploadImage {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+  background-color: #1f1f1f;
+}
+.uploadText {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.uploadText:hover {
+  opacity: 1;
+}
+
+.advancedParamItem {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 12px;
+  margin-bottom: 12px;
+}
+
+.controlNetCard {
+  .controlNetPreview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .content {
+      min-width: 269px;
+      min-height: 269px;
+      max-width: 269px;
+      max-height: 269px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .uploadContent {
+      .content;
+      row-gap: 6px;
+      border: 2px dashed #49aa19;
+      cursor: pointer;
+      color: #49aa19;
+      box-sizing: border-box;
+    }
+
+    .previewContent {
+      .content;
+    }
+  }
+}
