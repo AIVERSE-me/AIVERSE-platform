@@ -39,8 +39,13 @@ import GenerateButton from '@/components/GenerateButton/GenerateButton';
 import GenericOutputPanel, {
   GenericOutputPanelRefs,
 } from '@/components/GenericOutput/GenericOutputPanel';
+import CreateTemplateModal from '@/components/workshop/Modal/CreateTemplateModal';
 import {
   createAiWorkImage,
+  createAiWorkImageHr,
+  deleteAiWorkImage,
+  getAIWorkImage,
+  getAIWorkImages,
 } from '@/services/workshop';
 import BaseModelList, {
   BaseModelListRef,
@@ -75,9 +80,9 @@ const Index = () => {
   const { formatMessage } = useIntl();
   const [_message, messageContextHolder] = message.useMessage();
   const [_notification, notificationContextHolder] =
-    notification.useNotification();
+      notification.useNotification();
   const { checkSignedIn, openBuyPointModal } =
-    useContext<GlobalContextType>(GlobalContext);
+      useContext<GlobalContextType>(GlobalContext);
   const baseModelRef = useRef<BaseModelListRef>(null);
   const selectPersonModelRef = useRef<SelectModelListRefs>(null);
   const selectStyleModelRef = useRef<SelectModelListRefs>(null);
@@ -86,23 +91,26 @@ const Index = () => {
   const advancedParamsRef = useRef<AdvancedParamsRefs>(null);
   const outputPanelRef = useRef<GenericOutputPanelRefs>(null);
 
+  const [createTemplateImage, setCreateTemplateImage] =
+      useState<API.AiWorkImage>();
+
   const [useFigureModel, setUseFigureModel] = useLocalStorageState<boolean>(
-    'workshop.config.use-figure-model',
-    {
-      defaultValue: true,
-    },
+      'workshop.config.use-figure-model',
+      {
+        defaultValue: true,
+      },
   );
   const [useStyleModel, setUseStyleModel] = useLocalStorageState<boolean>(
-    'workshop.config.use-style-model',
-    {
-      defaultValue: true,
-    },
+      'workshop.config.use-style-model',
+      {
+        defaultValue: true,
+      },
   );
   const [useAdvance, setUseAdvance] = useLocalStorageState<boolean>(
-    'workshop.config.use-advance',
-    {
-      defaultValue: true,
-    },
+      'workshop.config.use-advance',
+      {
+        defaultValue: true,
+      },
   );
   const [generateType, setGenerateType] = useState<'TTI' | 'ITI'>('TTI');
 
@@ -119,27 +127,27 @@ const Index = () => {
   }, [styleModels]);
 
   const handleRepaint = useMemoizedFn(
-    (params: API.ImageGenerateParams, image?: string) => {
-      setGenerateType('ITI');
-      setTimeout(() => {
-        imageToImageRef.current?.setValues({
-          baseImageUri:
-            image || (params as API.ImageGenerateParamsImg2Img).init_images[0],
-          positivePrompt: params.prompt || params.img2imgPrompt,
-          negativePrompt: params.negative_prompt,
+      (params: API.ImageGenerateParams, image?: string) => {
+        setGenerateType('ITI');
+        setTimeout(() => {
+          imageToImageRef.current?.setValues({
+            baseImageUri:
+                image || (params as API.ImageGenerateParamsImg2Img).init_images[0],
+            positivePrompt: params.prompt || params.img2imgPrompt,
+            negativePrompt: params.negative_prompt,
+          });
+        }, 100);
+        setUseAdvance(true);
+        advancedParamsRef.current?.setValues({
+          sampling: params.sampler_name,
+          steps: params.steps,
+          seed: params.seed,
+          promptWeight: params.cfg_scale,
+          facialRepair: !!params.alwayson_scripts?.ADetailer,
+          denoisingStrength: (params as any).denoising_strength,
+          controlNets: params.alwayson_scripts?.controlnet?.args || [],
         });
-      }, 100);
-      setUseAdvance(true);
-      advancedParamsRef.current?.setValues({
-        sampling: params.sampler_name,
-        steps: params.steps,
-        seed: params.seed,
-        promptWeight: params.cfg_scale,
-        facialRepair: !!params.alwayson_scripts?.ADetailer,
-        denoisingStrength: (params as any).denoising_strength,
-        controlNets: params.alwayson_scripts?.controlnet?.args || [],
-      });
-    },
+      },
   );
 
   useAsyncEffect(async () => {
@@ -151,356 +159,416 @@ const Index = () => {
   }, [state]);
 
   const { loading: createLoading, runAsync: runCreate } = useRequest(
-    async (params?: API.ImageGenerateParamsInput) => {
-      if (params) {
-        try {
-          await createAiWorkImage(params);
-          outputPanelRef.current?.refreshOutputs();
-        } catch (e) {
-          _message.error(
-            formatMessage({ id: 'workshop.generate.failed-to-create-task' }),
+      async (params?: API.ImageGenerateParamsInput) => {
+        if (params) {
+          try {
+            await createAiWorkImage(params);
+            outputPanelRef.current?.refreshOutputs();
+          } catch (e) {
+            _message.error(
+                formatMessage({ id: 'workshop.generate.failed-to-create-task' }),
+            );
+          }
+          return;
+        }
+
+        const baseModel = baseModelRef.current?.getValue();
+        if (!baseModel) return;
+        if (price > point) {
+          _message.info(formatMessage({ id: 'recharge-tip' }));
+          openBuyPointModal();
+          return;
+        }
+
+        const promptValidate = await validatePrompt();
+        if (!promptValidate) {
+          _message.warning(
+              formatMessage({ id: 'workshop.tabs.positive-prompt.invalid' }),
           );
+          return;
         }
-        return;
-      }
 
-      const baseModel = baseModelRef.current?.getValue();
-      if (!baseModel) return;
-      if (price > point) {
-        _message.info(formatMessage({ id: 'recharge-tip' }));
-        openBuyPointModal();
-        return;
-      }
-
-      const promptValidate = await validatePrompt();
-      if (!promptValidate) {
-        _message.warning(
-          formatMessage({ id: 'workshop.tabs.positive-prompt.invalid' }),
-        );
-        return;
-      }
-
-      try {
-        if (generateType === 'TTI' && textToImageRef.current) {
-          const {
-            positivePrompt,
-            negativePrompt,
-            size: { width, height },
-          } = textToImageRef.current.getValues();
-          if (useAdvance && advancedParamsRef.current) {
-            const advancedParams = advancedParamsRef.current.getValues();
-            if (!advancedParams) return;
+        try {
+          if (generateType === 'TTI' && textToImageRef.current) {
             const {
-              sampling,
-              steps,
-              seed,
-              promptWeight,
-              facialRepair,
-              controlNets,
-            } = advancedParams;
-            await createAiWorkImage({
-              txt2img: {
-                type: 'txt2img',
-                base_model: baseModel,
-                prompt: positivePrompt,
-                negative_prompt: `${WORKSHOP_DEFAULT_NEGATIVE_PROMPT}${negativePrompt}`,
-                width,
-                height,
-                sampler_name: sampling,
+              positivePrompt,
+              negativePrompt,
+              size: { width, height },
+            } = textToImageRef.current.getValues();
+            if (useAdvance && advancedParamsRef.current) {
+              const advancedParams = advancedParamsRef.current.getValues();
+              if (!advancedParams) return;
+              const {
+                sampling,
                 steps,
                 seed,
-                cfg_scale: promptWeight,
-                alwayson_scripts: {
-                  controlnet: {
-                    args:
-                      controlNets?.map((e) => ({
-                        module: e.module,
-                        model: e.model,
-                        weight: e.weight,
-                        input_image: e.input_image,
-                      })) ?? [],
+                promptWeight,
+                facialRepair,
+                controlNets,
+              } = advancedParams;
+              await createAiWorkImage({
+                txt2img: {
+                  type: 'txt2img',
+                  base_model: baseModel,
+                  prompt: positivePrompt,
+                  negative_prompt: `${WORKSHOP_DEFAULT_NEGATIVE_PROMPT}${negativePrompt}`,
+                  width,
+                  height,
+                  sampler_name: sampling,
+                  steps,
+                  seed,
+                  cfg_scale: promptWeight,
+                  alwayson_scripts: {
+                    controlnet: {
+                      args:
+                          controlNets?.map((e) => ({
+                            module: e.module,
+                            model: e.model,
+                            weight: e.weight,
+                            input_image: e.input_image,
+                          })) ?? [],
+                    },
+                    ...(facialRepair
+                        ? {
+                          ADetailer: WorkshopParams.aDetailer,
+                        }
+                        : {}),
                   },
-                  ...(facialRepair
-                    ? {
-                        ADetailer: WorkshopParams.aDetailer,
-                      }
-                    : {}),
                 },
-              },
-            });
-          } else {
-            await createAiWorkImage({
-              txt2img: {
-                type: 'txt2img',
-                base_model: baseModel,
-                prompt: positivePrompt,
-                negative_prompt: `${WORKSHOP_DEFAULT_NEGATIVE_PROMPT}${negativePrompt}`,
-                width,
-                height,
-              },
-            });
-          }
-        } else if (generateType === 'ITI' && imageToImageRef.current) {
-          const { positivePrompt, negativePrompt, baseImageUri } =
-            imageToImageRef.current.getValues();
-          if (useAdvance && advancedParamsRef.current) {
-            const advancedParams = advancedParamsRef.current.getValues();
-            if (!advancedParams) return;
-            const {
-              sampling,
-              steps,
-              seed,
-              promptWeight,
-              facialRepair,
-              denoisingStrength,
-              controlNets,
-            } = advancedParams;
-            await createAiWorkImage({
-              img2img: {
-                type: 'img2img',
-                base_model: baseModel,
-                prompt: positivePrompt,
-                negative_prompt: `${WORKSHOP_DEFAULT_NEGATIVE_PROMPT}${negativePrompt}`,
-                init_images: [baseImageUri],
-                sampler_name: sampling,
+              });
+            } else {
+              await createAiWorkImage({
+                txt2img: {
+                  type: 'txt2img',
+                  base_model: baseModel,
+                  prompt: positivePrompt,
+                  negative_prompt: `${WORKSHOP_DEFAULT_NEGATIVE_PROMPT}${negativePrompt}`,
+                  width,
+                  height,
+                },
+              });
+            }
+          } else if (generateType === 'ITI' && imageToImageRef.current) {
+            const { positivePrompt, negativePrompt, baseImageUri } =
+                imageToImageRef.current.getValues();
+            if (useAdvance && advancedParamsRef.current) {
+              const advancedParams = advancedParamsRef.current.getValues();
+              if (!advancedParams) return;
+              const {
+                sampling,
                 steps,
                 seed,
-                cfg_scale: promptWeight,
-                denoising_strength: denoisingStrength,
-                alwayson_scripts: {
-                  controlnet: {
-                    args:
-                      controlNets?.map((e) => ({
-                        module: e.module,
-                        model: e.model,
-                        weight: e.weight,
-                        input_image: e.input_image,
-                      })) ?? [],
+                promptWeight,
+                facialRepair,
+                denoisingStrength,
+                controlNets,
+              } = advancedParams;
+              await createAiWorkImage({
+                img2img: {
+                  type: 'img2img',
+                  base_model: baseModel,
+                  prompt: positivePrompt,
+                  negative_prompt: `${WORKSHOP_DEFAULT_NEGATIVE_PROMPT}${negativePrompt}`,
+                  init_images: [baseImageUri],
+                  sampler_name: sampling,
+                  steps,
+                  seed,
+                  cfg_scale: promptWeight,
+                  denoising_strength: denoisingStrength,
+                  alwayson_scripts: {
+                    controlnet: {
+                      args:
+                          controlNets?.map((e) => ({
+                            module: e.module,
+                            model: e.model,
+                            weight: e.weight,
+                            input_image: e.input_image,
+                          })) ?? [],
+                    },
+                    ...(facialRepair
+                        ? {
+                          ADetailer: WorkshopParams.aDetailer,
+                        }
+                        : {}),
                   },
-                  ...(facialRepair
-                    ? {
-                        ADetailer: WorkshopParams.aDetailer,
-                      }
-                    : {}),
                 },
-              },
-            });
-          } else {
-            await createAiWorkImage({
-              img2img: {
-                type: 'img2img',
-                base_model: baseModel,
-                prompt: positivePrompt,
-                negative_prompt: `${WORKSHOP_DEFAULT_NEGATIVE_PROMPT}${negativePrompt}`,
-                init_images: [baseImageUri],
-              },
-            });
+              });
+            } else {
+              await createAiWorkImage({
+                img2img: {
+                  type: 'img2img',
+                  base_model: baseModel,
+                  prompt: positivePrompt,
+                  negative_prompt: `${WORKSHOP_DEFAULT_NEGATIVE_PROMPT}${negativePrompt}`,
+                  init_images: [baseImageUri],
+                },
+              });
+            }
           }
+          outputPanelRef.current?.refreshOutputs();
+          refreshPoint();
+        } catch (e) {
+          console.log(e);
         }
-        outputPanelRef.current?.refreshOutputs();
-        refreshPoint();
-      } catch (e) {
-        console.log(e);
-      }
-    },
-    {
-      manual: true,
-      loadingDelay: 100,
-    },
+      },
+      {
+        manual: true,
+        loadingDelay: 100,
+      },
   );
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: '#49aa19',
-        },
-      }}
-    >
-      <Helmet title={formatMessage({ id: 'helmet.workshop.title' })} />
-      <div className={styles.container}>
-        <SafeArea size={'large'} />
-        <div className={styles.rowBetween} style={{ marginBottom: 12 }}>
-          <Tabs
-            tabs={[
-              {
-                key: 'default',
-                label: formatMessage({ id: 'tabs.workshop' }),
-              },
-            ]}
-            activeKey={'default'}
-            onChange={() => {}}
-          />
-          <PointButtons onOpenBuyPointModal={openBuyPointModal} />
-        </div>
-        <Row justify={'space-between'} gutter={48}>
-          <Col span={12} style={{ marginBottom: 80, position: 'relative' }}>
-            {/* 基底模型 */}
-            <div key={'base-model'} className={styles.configItem}>
-              <div className={styles.title}>
-                <div>
-                  {formatMessage({ id: 'workshop.config.base-model.title' })}
-                </div>
-                <div className={styles.right}>
-                  <Space size={4}>
-                    <div>
-                      {formatMessage({
-                        id: 'workshop.config.base-model.scroll-tip',
-                      })}
-                    </div>
-                    <SwapRightOutlined />
-                  </Space>
-                </div>
-              </div>
-              <BaseModelList ref={baseModelRef} />
-            </div>
-            {/* 人物小模型 */}
-            <div key={'person-model'} className={styles.configItem}>
-              <div
-                className={classNames(styles.title, {
-                  [styles.titleDisabled]: !useFigureModel,
-                })}
-              >
-                {!!personModel ? (
-                  <Badge
-                    count={
-                      <CheckCircleFilled
-                        style={{ color: '#49aa19', fontSize: 20 }}
-                      />
-                    }
-                  >
-                    <div style={{ fontSize: 20 }}>
-                      {formatMessage({
-                        id: 'workshop.config.person-model.title',
-                      })}
-                    </div>
-                  </Badge>
-                ) : (
-                  <div>
-                    {formatMessage({
-                      id: 'workshop.config.person-model.title',
-                    })}
-                  </div>
-                )}
-
-                <div className={styles.right}>
-                  <Switch
-                    checked={useFigureModel}
-                    onChange={(e) => {
-                      setUseFigureModel(e);
-                      if (!e) {
-                        clearPersonModel();
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-              {useFigureModel && (
-                <SelectModelList type={'PERSON'} ref={selectPersonModelRef} />
-              )}
-            </div>
-            {/* 风格小模型 */}
-            <div key={'style-model'} className={styles.configItem}>
-              <div
-                className={classNames(styles.title, {
-                  [styles.titleDisabled]: !useStyleModel,
-                })}
-              >
-                {styleModels.length > 0 ? (
-                  <Badge count={styleModels.length} color={'#49aa19'}>
-                    <div style={{ fontSize: 20 }}>
-                      {formatMessage({
-                        id: 'workshop.config.style-model.title',
-                      })}
-                    </div>
-                  </Badge>
-                ) : (
-                  <div>
-                    {formatMessage({ id: 'workshop.config.style-model.title' })}
-                  </div>
-                )}
-                <div className={styles.right}>
-                  <Switch
-                    checked={useStyleModel}
-                    onChange={(e) => {
-                      setUseStyleModel(e);
-                      if (!e) {
-                        clearStyleModels();
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-              {useStyleModel && (
-                <SelectModelList type={'STYLE'} ref={selectStyleModelRef} />
-              )}
-            </div>
-            {/* 生成类型 */}
-            <div key={'generate-type'} className={styles.configItem}>
-              <ThemeTabs
-                style={{ fontSize: 20, marginBottom: 12 }}
-                value={generateType}
-                onChange={(e) => setGenerateType(e as any)}
+      <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: '#49aa19',
+            },
+          }}
+      >
+        <Helmet title={formatMessage({ id: 'helmet.workshop.title' })} />
+        <div className={styles.container}>
+          <SafeArea size={'large'} />
+          <div className={styles.rowBetween} style={{ marginBottom: 12 }}>
+            <Tabs
                 tabs={[
                   {
-                    label: formatMessage({ id: 'text-to-image' }),
-                    key: 'TTI',
-                  },
-                  {
-                    label: formatMessage({ id: 'image-to-image' }),
-                    key: 'ITI',
+                    key: 'default',
+                    label: formatMessage({ id: 'tabs.workshop' }),
                   },
                 ]}
-              />
-              {generateType === 'TTI' ? (
-                <TextToImageInput ref={textToImageRef} />
-              ) : (
-                <ImageToImageInput ref={imageToImageRef} />
-              )}
-            </div>
-            {/* 高级功能 */}
-            <div key={'advanced-params'} className={styles.configItem}>
-              <div
-                className={classNames(styles.title, {
-                  [styles.titleDisabled]: !useAdvance,
-                })}
-              >
-                <div>
-                  {formatMessage({ id: 'workshop.config.advanced.title' })}
-                </div>
-                <div className={styles.right}>
-                  <Switch
-                    checked={useAdvance}
-                    onChange={(e) => setUseAdvance(e)}
-                  />
-                </div>
-              </div>
-              {useAdvance && (
-                <AdvancedParams type={generateType} ref={advancedParamsRef} />
-              )}
-            </div>
-            <GenerateButton
-              fixed={true}
-              style={{ width: 600 }}
-              price={price}
-              loading={createLoading}
-              onClick={async () => {
-                if (checkSignedIn()) {
-                  runCreate();
-                }
-              }}
+                activeKey={'default'}
+                onChange={() => {}}
             />
-          </Col>
-          <Col
-            span={12}
-            style={{ display: 'flex', justifyContent: 'flex-end' }}
-          >
-          </Col>
-        </Row>
-      </div>
-      {messageContextHolder}
-      {notificationContextHolder}
-    </ConfigProvider>
+            <PointButtons onOpenBuyPointModal={openBuyPointModal} />
+          </div>
+          <Row justify={'space-between'} gutter={48}>
+            <Col span={12} style={{ marginBottom: 80, position: 'relative' }}>
+              {/* 基底模型 */}
+              <div key={'base-model'} className={styles.configItem}>
+                <div className={styles.title}>
+                  <div>
+                    {formatMessage({ id: 'workshop.config.base-model.title' })}
+                  </div>
+                  <div className={styles.right}>
+                    <Space size={4}>
+                      <div>
+                        {formatMessage({
+                          id: 'workshop.config.base-model.scroll-tip',
+                        })}
+                      </div>
+                      <SwapRightOutlined />
+                    </Space>
+                  </div>
+                </div>
+                <BaseModelList ref={baseModelRef} />
+              </div>
+              {/* 人物小模型 */}
+              <div key={'person-model'} className={styles.configItem}>
+                <div
+                    className={classNames(styles.title, {
+                      [styles.titleDisabled]: !useFigureModel,
+                    })}
+                >
+                  {!!personModel ? (
+                      <Badge
+                          count={
+                            <CheckCircleFilled
+                                style={{ color: '#49aa19', fontSize: 20 }}
+                            />
+                          }
+                      >
+                        <div style={{ fontSize: 20 }}>
+                          {formatMessage({
+                            id: 'workshop.config.person-model.title',
+                          })}
+                        </div>
+                      </Badge>
+                  ) : (
+                      <div>
+                        {formatMessage({
+                          id: 'workshop.config.person-model.title',
+                        })}
+                      </div>
+                  )}
+
+                  <div className={styles.right}>
+                    <Switch
+                        checked={useFigureModel}
+                        onChange={(e) => {
+                          setUseFigureModel(e);
+                          if (!e) {
+                            clearPersonModel();
+                          }
+                        }}
+                    />
+                  </div>
+                </div>
+                {useFigureModel && (
+                    <SelectModelList type={'PERSON'} ref={selectPersonModelRef} />
+                )}
+              </div>
+              {/* 风格小模型 */}
+              <div key={'style-model'} className={styles.configItem}>
+                <div
+                    className={classNames(styles.title, {
+                      [styles.titleDisabled]: !useStyleModel,
+                    })}
+                >
+                  {styleModels.length > 0 ? (
+                      <Badge count={styleModels.length} color={'#49aa19'}>
+                        <div style={{ fontSize: 20 }}>
+                          {formatMessage({
+                            id: 'workshop.config.style-model.title',
+                          })}
+                        </div>
+                      </Badge>
+                  ) : (
+                      <div>
+                        {formatMessage({ id: 'workshop.config.style-model.title' })}
+                      </div>
+                  )}
+                  <div className={styles.right}>
+                    <Switch
+                        checked={useStyleModel}
+                        onChange={(e) => {
+                          setUseStyleModel(e);
+                          if (!e) {
+                            clearStyleModels();
+                          }
+                        }}
+                    />
+                  </div>
+                </div>
+                {useStyleModel && (
+                    <SelectModelList type={'STYLE'} ref={selectStyleModelRef} />
+                )}
+              </div>
+              {/* 生成类型 */}
+              <div key={'generate-type'} className={styles.configItem}>
+                <ThemeTabs
+                    style={{ fontSize: 20, marginBottom: 12 }}
+                    value={generateType}
+                    onChange={(e) => setGenerateType(e as any)}
+                    tabs={[
+                      {
+                        label: formatMessage({ id: 'text-to-image' }),
+                        key: 'TTI',
+                      },
+                      {
+                        label: formatMessage({ id: 'image-to-image' }),
+                        key: 'ITI',
+                      },
+                    ]}
+                />
+                {generateType === 'TTI' ? (
+                    <TextToImageInput ref={textToImageRef} />
+                ) : (
+                    <ImageToImageInput ref={imageToImageRef} />
+                )}
+              </div>
+              {/* 高级功能 */}
+              <div key={'advanced-params'} className={styles.configItem}>
+                <div
+                    className={classNames(styles.title, {
+                      [styles.titleDisabled]: !useAdvance,
+                    })}
+                >
+                  <div>
+                    {formatMessage({ id: 'workshop.config.advanced.title' })}
+                  </div>
+                  <div className={styles.right}>
+                    <Switch
+                        checked={useAdvance}
+                        onChange={(e) => setUseAdvance(e)}
+                    />
+                  </div>
+                </div>
+                {useAdvance && (
+                    <AdvancedParams type={generateType} ref={advancedParamsRef} />
+                )}
+              </div>
+              <GenerateButton
+                  fixed={true}
+                  style={{ width: 600 }}
+                  price={price}
+                  loading={createLoading}
+                  onClick={async () => {
+                    if (checkSignedIn()) {
+                      runCreate();
+                    }
+                  }}
+              />
+            </Col>
+            <Col
+                span={12}
+                style={{ display: 'flex', justifyContent: 'flex-end' }}
+            >
+              <GenericOutputPanel
+                  ref={outputPanelRef}
+                  actions={[
+                    'one-more',
+                    'download',
+                    'repaint',
+                    'hd',
+                    'template',
+                    'delete',
+                  ]}
+                  services={{
+                    getOutputs: async (page, pageSize) => {
+                      const res = await getAIWorkImages(page, pageSize);
+                      return {
+                        total: res.aiWorkImagesCount,
+                        list: res.aiWorkImages,
+                      };
+                    },
+                    getOutput: async (id) => getAIWorkImage(id),
+                    deleteOutput: async (id) => deleteAiWorkImage(id),
+                    createHrTask: async (id) => createAiWorkImageHr(id),
+                  }}
+                  handlers={{
+                    onOneMore: (item: API.AiWorkImage) => {
+                      if (item.params.type === 'txt2img') {
+                        runCreate({
+                          txt2img:
+                              item.params as API.ImageGenerateParamsTxt2ImgInput,
+                        });
+                      } else {
+                        let params = {
+                          ...(item.params as API.ImageGenerateParamsImg2ImgInput),
+                          prompt: item.params.img2imgPrompt,
+                        };
+                        delete params['img2imgPrompt'];
+                        runCreate({
+                          img2img: params,
+                        });
+                      }
+                    },
+                    onRepaint: (item: API.AiWorkImage) =>
+                        handleRepaint(
+                            item.params,
+                            item.hr?.imageUrls.origin || item.imageUrls.origin,
+                        ),
+                    onTemplate: (item: API.AiWorkImage) =>
+                        setCreateTemplateImage(item),
+                  }}
+              />
+            </Col>
+          </Row>
+        </div>
+
+        <CreateTemplateModal
+            data={createTemplateImage}
+            open={!!createTemplateImage}
+            onSubmit={() => {
+              setCreateTemplateImage(undefined);
+              outputPanelRef.current?.refreshOutput();
+            }}
+            onCancel={() => setCreateTemplateImage(undefined)}
+        />
+
+        {messageContextHolder}
+        {notificationContextHolder}
+      </ConfigProvider>
   );
 };
 
