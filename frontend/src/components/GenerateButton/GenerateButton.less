@@ -1,0 +1,46 @@
+.container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.fixed {
+  position: fixed;
+  bottom: 24px;
+  z-index: 100;
+}
+
+.generateButton {
+  height: 40px;
+  //padding: 8px 0;
+  margin: 0 auto;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  //width: 400px;
+  font-size: 18px;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 40px;
+  row-gap: 2px;
+  color: rgb(255 255 255 / 95%);
+  box-shadow: 0 0 8px 2px rgba(#000, 0.8), 0 0 16px 4px rgba(#000, 0.6);
+  position: relative;
+}
+
+.price {
+  font-size: 14px;
+}
+.freeTimes {
+  transition: all 0.3s ease;
+  position: absolute;
+  font-size: 14px;
+  height: 44px;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  padding: 2px 12px;
+  border-radius: 24px;
+}
