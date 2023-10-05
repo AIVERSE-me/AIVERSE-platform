@@ -15,6 +15,8 @@ export default defineConfig({
       component: './index',
     },
     { path: '/features/figure', component: './features/figure' },
+    { path: '/features/style-model', component: './features/style' },
+    { path: '/features/ai-product', component: './features/product' },
   ],
   npmClient: 'yarn',
 });
