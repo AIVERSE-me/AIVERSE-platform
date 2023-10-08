@@ -1,0 +1,278 @@
+.container {
+  display: flex;
+  column-gap: 24px;
+}
+
+.input {
+  width: 300px;
+  //height: calc(100vh - 90px);
+  //overflow-y: auto;
+
+  .segment {
+    margin-bottom: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+
+    .noSegmentTip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      row-gap: 12px;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    img {
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      top: 0;
+      left: 0;
+      object-fit: contain;
+      z-index: 1;
+    }
+
+    .reCropButton {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+    }
+  }
+
+  .parameter {
+    padding: 12px;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+
+    .parameterSection {
+      margin-top: 24px;
+      user-select: none;
+
+      .title {
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .collapsedButton {
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .advancedParamRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 6px;
+        .title {
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+.output {
+  flex: 1;
+  display: flex;
+
+  .outputImage {
+    display: block;
+    width: 718px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    //background: rgba(255, 255, 255, 0.1);
+  }
+  .outputActionList {
+    width: 40px;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.85);
+
+    .outputActionItem {
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
+
+.outputFailed {
+  width: 718px;
+  height: 718px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 500;
+  row-gap: 6px;
+
+  .icon {
+    font-size: 36px;
+  }
+  .title {
+    font-size: 24px;
+  }
+  .desc {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.65);
+  }
+}
+
+.rowBetween {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.denoisingStrength {
+  position: relative;
+
+  .mark {
+    position: absolute;
+    bottom: 0;
+    transform: translateY(6px);
+    font-size: 12px;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.65);
+  }
+  .denoisingStrengthMark {
+    .mark;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .markLeft {
+    //.mark;
+    left: 0;
+  }
+  .markRight {
+    //.mark;
+    right: 0;
+  }
+}
+
+.tabs {
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  column-gap: 12px;
+  margin-top: 24px;
+  margin-bottom: 6px;
+
+  .tab {
+    transition: color 0.3s ease-in-out;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+
+    //&:hover {
+    //  color: rgba(255, 255, 255, 0.85);
+    //}
+  }
+
+  .tabActive {
+    //font-weight: bold;
+    //color: rgba(255, 255, 255, 0.85);
+  }
+}
+
+.presetCard {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+}
+
+.addUserLoraCard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  border: 3px dashed transparent;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: pre-wrap;
+}
+
+.presetImage {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 3px solid transparent;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.absolutePresetImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  //min-height: 134px;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 3px solid transparent;
+  transition: border-color 0.3s ease-in-out;
+  word-break: break-all;
+  text-align: center;
+}
+
+.customInput {
+  margin-top: 6px;
+  .customInputTitle {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+}
+
+.modelPresetCatalogTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 6px;
+}
