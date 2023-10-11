@@ -1,0 +1,43 @@
+.container {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+.layout {
+  display: flex;
+  column-gap: 24px;
+}
+
+.featureIntro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  //justify-content: center;
+
+  .featureTitle {
+    font-weight: bold;
+    font-size: 48px;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .featureSubtitle {
+    font-weight: 500;
+    font-size: 26px;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 24px;
+  }
+  .featureImage {
+    display: block;
+    object-fit: contain;
+    width: auto;
+    height: 350px;
+    margin-bottom: 24px;
+  }
+}
+
+.justifyCenter {
+  display: flex;
+  justify-content: center;
+}
