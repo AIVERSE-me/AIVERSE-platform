@@ -7,8 +7,10 @@ import { FeatureMenus } from '@/components/FeatureMenu/FeatureMenu';
 import { AppstoreOutlined, PictureOutlined } from '@ant-design/icons';
 import { GlobalContext, GlobalContextType } from '@/layouts';
 import {Loading} from "@/components/Icon";
-import {getMyGroupPhotoTasks} from "@/services/group-photo";
-import {useInfiniteScroll, useThrottleFn} from "ahooks";
+import {getGroupPhotoCatalogs, getMyGroupPhotoTasks} from "@/services/group-photo";
+import {useCreation, useInfiniteScroll, useRequest, useThrottleFn} from "ahooks";
+import Tabs from '@/components/Tabs/Tabs';
+import GroupPhotoPresets from "@/components/GroupPhoto/GroupPhotoPreset/GroupPhotoPreset";
 
 const Empty = ({ onGenerate }: { onGenerate: VoidFunction }) => {
   const { formatMessage, locale } = useIntl();
@@ -55,8 +57,10 @@ const Index = () => {
 
 
   const [menu, setMenu] = useState<React.Key>('collection');
+    const [catalog, setCatalog] = useState<API.GroupPhotoCatalog | undefined>();
 
-  const {
+
+    const {
     data: groupPhotos,
     loadMore: fetchGroupPhotos,
     noMore,
@@ -106,6 +110,17 @@ const Index = () => {
       window.removeEventListener('scroll', onScroll);
     };
   }, []);
+
+    const { data: groupPhotoCatalogs = [] } = useRequest(async () => {
+        const catalogs = await getGroupPhotoCatalogs();
+        setCatalog(catalogs[0]);
+        return catalogs;
+    });
+
+    const groupPhotoTemplates = useCreation(
+        () => groupPhotoCatalogs.find((e) => e.id === catalog?.id)?.templates || [],
+        [catalog, groupPhotoCatalogs],
+    );
 
   return (
     <ConfigProvider
@@ -158,6 +173,27 @@ const Index = () => {
                 ))}
             {menu === 'preset' && (
                 <div>
+                    {groupPhotoCatalogs && groupPhotoCatalogs.length > 0 && (
+                        <Tabs
+                            size={'small'}
+                            tabs={
+                                groupPhotoCatalogs.map((e) => ({
+                                    key: e.id,
+                                    label: e.name,
+                                })) || []
+                            }
+                            style={{ marginBottom: 12 }}
+                            activeKey={catalog?.id || ''}
+                            onChange={(e) =>
+                                setCatalog(groupPhotoCatalogs.find((c) => c.id === e))
+                            }
+                        />
+                    )}
+                    <GroupPhotoPresets
+                        typeName={catalog?.name || ''}
+                        presets={groupPhotoTemplates}
+                        onCreate={(e) => {}}
+                    />
                 </div>
             )}
           </div>

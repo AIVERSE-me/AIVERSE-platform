@@ -1,0 +1,35 @@
+.card {
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+
+  img {
+    width: 100%;
+    display: block;
+    height: auto;
+  }
+  .meta {
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.5);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.masonryGrid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: -12px;
+  width: auto;
+}
+.masonryGridColumn {
+  padding-left: 12px;
+  background-clip: padding-box;
+}
+.masonryGridColumn > div {
+  margin-bottom: 12px;
+}
