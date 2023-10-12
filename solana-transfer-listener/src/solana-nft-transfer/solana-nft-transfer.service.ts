@@ -7,6 +7,7 @@ import { TRANSFER_CHANNEL_QUEUE, TransferChannelJobData } from './mq/solana-nft-
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TransactionContext } from 'src/common/transcation-context';
 import { SolanaNftTransfer } from './entity/solana-nft-transfer.entity';
+import { Metaplex } from "@metaplex-foundation/js";
 
 const proxy = require("node-global-proxy").default;
 proxy.setConfig("http://127.0.0.1:7890");
@@ -27,20 +28,79 @@ export class SolanaNftTransferService {
       ) {}
     
     async onModuleInit() {
+      // console.log(Buffer.from('23d19c30-6f4c-4595-8b3b-8cd078303f8c').toString('base64'));
+      await this.listenNftTransfer();
     }
 
     private async listenNftTransfer() {
-        const network = 'https://api.devnet.solana.com';
-        this.connection = new Connection(network);
+      const LOOP_INTERVAL = 20;
+      const network = 'https://api.devnet.solana.com';
+      this.connection = new Connection(network);
 
-        const programId = new PublicKey(this.configService.get('NFT_PROGRAM_ID') as string);
-        const programAddress = new PublicKey(this.configService.get('NFT_PROGRAM_ADDRESS') as string);
-        const ctx = new TransactionContext(this.datasource);
-        await ctx.run(async (em, ctx) => {
-            this.connection.onLogs(programAddress, async (logs) => {
-                // 从logs中分析：1. 铸造还是转移 2. 发送者/接收者 3.记录数据/发送消息队列
-            }, 'max');
-        });
+      const programId = new PublicKey(this.configService.get('NFT_PROGRAM_ID') as string);
+      const programAddress = new PublicKey(this.configService.get('NFT_PROGRAM_ADDRESS') as string);
+      const ctx = new TransactionContext(this.datasource);
+
+      const metaplex = new Metaplex(this.connection);
+      console.log(`开始获取全部nfts`);
+      console.log(programId);
+      while (true){
+        try {
+          const ctx = new TransactionContext(this.datasource);
+          await ctx.run(async (em, ctx) => {
+            const nfts = await metaplex.nfts().findAllByCreator({
+              creator: programId,
+              position: 1,
+            });
+            console.log(`获取成功`);
+            console.log(`${JSON.stringify(nfts)}`);
+            for (const nft of nfts) {
+              const uri = nft.uri;
+              const name = nft.name;
+              const type = name.split('#')[0];
+              const offLineId = (uri.split('/').pop()).split('.')[0];
+              let oldOwner = '';
+              const newOwner = nft.creators[nft.creators.length - 1].address.toBase58();
+              // 判断是否存在
+              const repo = em.getRepository(SolanaNftTransfer);
+              if (await repo.exist({
+                where: {nftTokenId: name},
+              })) {
+                const transferInfo = await repo.findOne({
+                  where: {
+                    nftTokenId: name,
+                  }
+                });
+                // 判断是否有更新
+                if (transferInfo.creatorNum != nft.creators.length) {
+                  oldOwner = transferInfo.newOwner;
+                  await this.addBullJob(oldOwner, newOwner, name, '', type, offLineId);
+                  // todo 更新数据库数据
+                  await this.updateTransfer(name, nft.creators.length);
+                }
+              } else {
+                // 创建数据库
+                // 发起
+                await this.creatTransfer(
+                  0,
+                  'blockHash',
+                  'txHash',
+                  'time',
+                  newOwner,
+                  'SYSTEM',
+                  name,
+                  nft.creators.length,
+                );
+                await this.addBullJob('SYSTEM', newOwner, name, '', type, offLineId)
+              }
+            }
+          });
+        } catch (err) {
+          this.logger.error(err);
+        } finally {
+          await new Promise((res) => setTimeout(res, LOOP_INTERVAL * 1000));
+        }
+      }
     }
 
     async creatTransfer(
@@ -51,6 +111,7 @@ export class SolanaNftTransferService {
         newOwner: string,
         oldOwner: string,
         nftTokenId: string,
+        creatorNum: number,
         ctx?: TransactionContext,
       ): Promise<SolanaNftTransfer> {
         ctx = ctx || new TransactionContext(this.datasource);
@@ -64,11 +125,31 @@ export class SolanaNftTransferService {
             newOwner: newOwner,
             oldOwner: oldOwner,
             nftTokenId: nftTokenId,
+            creatorNum: creatorNum,
           });
           const creattransferinfo = await repo.save(creatRepo);
           return creattransferinfo;
         });
       }
+
+    async updateTransfer(
+      name: string,
+      creatorNum: number,
+      ctx?: TransactionContext,
+    ): Promise<SolanaNftTransfer>{
+      ctx = ctx || new TransactionContext(this.datasource);
+      return await ctx.run(async (em, ctx) => {
+        const repo = em.getRepository(SolanaNftTransfer);
+        const transferInfo = await repo.findOne({
+          where: {
+            nftTokenId: name,
+          }
+        });
+        transferInfo.creatorNum = creatorNum;
+        const updateTransferInfo = await repo.save(transferInfo);
+        return updateTransferInfo;
+      })
+    }
 
       private async addBullJob(
         from: string,

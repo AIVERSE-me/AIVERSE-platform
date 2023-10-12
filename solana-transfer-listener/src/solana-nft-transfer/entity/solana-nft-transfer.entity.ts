@@ -39,6 +39,10 @@ import {
     @Index()
     @Column({ length: 256 })
     nftTokenId: string;
+
+    @Index()
+    @Column({ type: 'int' })
+    creatorNum: number;
   
     @CreateDateColumn()
     createTime: Date;
