@@ -25,9 +25,7 @@
   opacity: 0.85;
 }
 
-@color-eth: #ff7324;
-@color-neo: #03c685;
-@color-wechat: #00bc0c;
+@color-solana: #7827d1;
 
 .priceCard {
   position: relative;
@@ -78,28 +76,16 @@
   opacity: 1;
   transform: translateY(-4px);
   //background-color: #d89614;
-  &.eth {
-    background-color: @color-eth;
-  }
-  &.neo {
-    background-color: @color-neo;
-  }
-  &.wechat {
-    background-color: @color-wechat;
+  &.solana {
+    background-color: @color-solana;
   }
 }
 
 .priceCardSelected {
   opacity: 1;
   //background-color: #d89614;
-  &.eth {
-    background-color: @color-eth;
-  }
-  &.neo {
-    background-color: @color-neo;
-  }
-  &.wechat {
-    background-color: @color-wechat;
+  &.solana {
+    background-color: @color-solana;
   }
 }
 
@@ -118,59 +104,36 @@
   transition: all 0.2s ease-in-out;
   background-color: rgba(#faad14, 0.5);
   box-shadow: 7px 7px 12px rgba(#2b2111, 0.4), -7px -7px 12px rgba(#e8b339, 0.4),
-    inset 0 0 0px rgba(#e8b339, 0.4), inset 0 0 0 rgba(#2b2111, 0.4);
+  inset 0 0 0px rgba(#e8b339, 0.4), inset 0 0 0 rgba(#2b2111, 0.4);
 
-  &.eth {
-    background-color: rgba(@color-eth, 0.5);
-    box-shadow: 7px 7px 12px rgba(#2c1a12, 0.4),
-      -7px -7px 12px rgba(#e88747, 0.4), inset 0 0 0px rgba(#e88747, 0.4),
-      inset 0 0 0 rgba(#2c1a12, 0.4);
-  }
-  &.neo {
-    background-color: rgba(@color-neo, 0.5);
-    box-shadow: 7px 7px 12px rgba(#112822, 0.4),
-      -7px -7px 12px rgba(#25dc99, 0.4), inset 0 0 0px rgba(#25dc99, 0.4),
-      inset 0 0 0 rgba(#112822, 0.4);
-  }
-  &.wechat {
-    background-color: rgba(@color-wechat, 0.5);
-    box-shadow: 7px 7px 12px rgba(#002407, 0.4),
-      -7px -7px 12px rgba(#45d645, 0.4), inset 0 0 0px rgba(#45d645, 0.4),
-      inset 0 0 0 rgba(#002407, 0.4);
+  &.solana {
+    background-color: rgba(@color-solana, 0.5);
+    box-shadow: 7px 7px 12px rgba(#26045e, 0.4),
+      -7px -7px 12px rgba(#984ede, 0.4), inset 0 0 0px rgba(#984ede, 0.4),
+    inset 0 0 0 rgba(#26045e, 0.4);
   }
 }
 .purchaseBtn:active {
   box-shadow: 0 0 0 rgba(#2b2111, 0.4), 0 0 0 rgba(#e8b339, 0.4),
     inset -7px -7px 12px rgba(#e8b339, 0.4),
-    inset 7px 7px 12px rgba(#2b2111, 0.4);
-  &.eth {
-    box-shadow: 0 0 0 rgba(#2c1a12, 0.4), 0 0 0 rgba(#e88747, 0.4),
-      inset -7px -7px 12px rgba(#e88747, 0.4),
-      inset 7px 7px 12px rgba(#2c1a12, 0.4);
-  }
-  &.neo {
-    box-shadow: 0 0 0 rgba(#112822, 0.4), 0 0 0 rgba(#25dc99, 0.4),
-      inset -7px -7px 12px rgba(#25dc99, 0.4),
-      inset 7px 7px 12px rgba(#112822, 0.4);
+  inset 7px 7px 12px rgba(#2b2111, 0.4);
+  &.solana {
+    box-shadow: 0 0 0 rgba(#26045e, 0.4), 0 0 0 rgba(#984ede, 0.4),
+      inset -7px -7px 12px rgba(#984ede, 0.4),
+    inset 7px 7px 12px rgba(#26045e, 0.4);
   }
   &.wechat {
     box-shadow: 0 0 0 rgba(#002407, 0.4), 0 0 0 rgba(#45d645, 0.4),
       inset -7px -7px 12px rgba(#45d645, 0.4),
-      inset 7px 7px 12px rgba(#002407, 0.4);
+    inset 7px 7px 12px rgba(#002407, 0.4);
   }
 }
 .purchaseBtnLoading {
   box-shadow: none;
   //background-color: #d89614;
   //opacity: 0.85;
-  &.eth {
-    background-color: @color-eth;
-  }
-  &.neo {
-    background-color: @color-neo;
-  }
-  &.wechat {
-    background-color: @color-wechat;
+  &.solana {
+    background-color: @color-solana;
   }
 }
 

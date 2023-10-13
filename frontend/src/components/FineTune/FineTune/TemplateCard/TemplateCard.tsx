@@ -24,7 +24,6 @@ import {
 } from '@ant-design/icons';
 import { getGeneratePreset } from '@/services/ai-product';
 import useInterval from '@/hooks/useInterval';
-import { prePublishNft } from '@/services/neo';
 
 interface TemplateCardProps {
   template: API.GeneratePreset;

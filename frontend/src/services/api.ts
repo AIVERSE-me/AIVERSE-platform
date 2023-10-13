@@ -90,18 +90,6 @@ export const createParallelTask = async ({
   );
 };
 
-export const getPurchaseContractAddress = async () => {
-  return await client.request<{
-    ethPurchaseContractAddress: string;
-    neoPurchaseWalletAddress: string;
-  }>(gql`
-    query ethPurchaseContractAddress {
-      ethPurchaseContractAddress
-      neoPurchaseWalletAddress
-    }
-  `);
-};
-
 export const getPointsPrice = async (channel: API.PurchaseChannelId) => {
   return await client.request<{ pointsPrices: API.PointsPrice[] }>(
     gql`
@@ -898,15 +886,7 @@ export const getCurrentUser = async (token: string) => {
       query currentUser {
         currentUser {
           avatarUrl
-          eth {
-            address
-            wallet
-          }
           id
-          neo {
-            publicKey
-            wallet
-          }
           solana {
             address
             publicKey
@@ -933,84 +913,6 @@ export const getCurrentUser = async (token: string) => {
       authorization: `Bearer ${token}`,
     },
   );
-};
-
-export const bindAccount = async (
-  bindType: 'eth' | 'neo',
-  message: string,
-  address: string,
-  wallet: string,
-  signature: string,
-  token: string,
-) => {
-  if (bindType === 'eth') {
-    return client.request(
-      gql`
-        mutation bindEthAccount(
-          $address: String!
-          $message: String!
-          $sig: String!
-          $wallet: String!
-        ) {
-          bindEthAccount(
-            address: $address
-            message: $message
-            sig: $sig
-            wallet: $wallet
-          ) {
-            address
-            wallet
-          }
-        }
-      `,
-      { address, message, sig: signature, wallet },
-      {
-        authorization: `Bearer ${token}`,
-      },
-    );
-  } else if (bindType === 'neo') {
-    const { publicKey, signature: _signature } = JSON.parse(signature);
-    return client.request(
-      gql`
-        mutation bindNeoAccount(
-          $message: String!
-          $publicKey: String!
-          $sig: String!
-          $wallet: String!
-        ) {
-          bindNeoAccount(
-            message: $message
-            publicKey: $publicKey
-            sig: $sig
-            wallet: $wallet
-          ) {
-            publicKey
-            wallet
-          }
-        }
-      `,
-      { sig: _signature, message, publicKey, wallet },
-      {
-        authorization: `Bearer ${token}`,
-      },
-    );
-  }
-};
-
-export const unbindAccount = async (bindType: 'eth' | 'neo') => {
-  if (bindType === 'eth') {
-    return client.request(gql`
-      mutation unbindEthAccount {
-        unbindEthAccount
-      }
-    `);
-  } else if (bindType === 'neo') {
-    return client.request(gql`
-      mutation unbindNeoAccount {
-        unbindNeoAccount
-      }
-    `);
-  }
 };
 
 export const getActivity = async (id: string) => {

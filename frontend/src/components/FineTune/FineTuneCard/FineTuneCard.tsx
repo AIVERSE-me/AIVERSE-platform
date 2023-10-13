@@ -26,7 +26,6 @@ import {
   publishPrivateModel,
   setPrivateModelHidden,
 } from '@/services/workshop';
-import { prePublishNft } from '@/services/neo';
 
 const isInProgress = (status: API.FineTuneJobStatus) => {
   return ['CREATED', 'STARTED'].includes(status);

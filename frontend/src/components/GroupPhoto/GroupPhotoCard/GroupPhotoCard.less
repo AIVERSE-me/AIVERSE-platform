@@ -1,0 +1,72 @@
+.card {
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+
+  .imageWrapper {
+    position: relative;
+    img {
+      width: 100%;
+      display: block;
+      height: auto;
+    }
+    .imageMask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      flex-direction: column;
+      row-gap: 10px;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+
+  .meta {
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.5);
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+}
+
+.masonryGrid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: -12px;
+  width: auto;
+}
+.masonryGridColumn {
+  padding-left: 12px;
+  background-clip: padding-box;
+}
+.masonryGridColumn > div {
+  margin-bottom: 12px;
+}
+
+.rowCenter {
+  display: flex;
+  align-items: center;
+}
+
+.actionButton {
+  transition: color 0.3s ease-in-out;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+
+.actionButtonDisabled {
+  color: rgba(255, 255, 255, 0.35);
+  cursor: default;
+}

@@ -5,16 +5,12 @@ import { getBindMessage } from '@/utils/utils';
 import { Alert, Button, ConfigProvider, message, Modal, Steps } from 'antd';
 import styles from './BindStepsModal.less';
 import { WalletType } from '@/wallets';
-import LOGO_ETHEREUM from '@/assets/logo-ethereum.svg';
-import LOGO_METAMASK from '@/assets/metamask-icon-64.png';
-import LOGO_NEO from '@/assets/logo-neo.svg';
-import LOGO_NEOLINE from '@/assets/neoline-icon-48.png';
 import LOGO_SOLANA from '@/assets/logo-solana.svg';
 import LOGO_PHANTOM from '@/assets/logo-phantom.png';
 import { bindAccount } from '@/services/api';
 
 export interface BindType {
-  bindType: 'eth' | 'neo' | 'solana';
+  bindType: 'solana';
   chainIcon: string;
   chainName: string;
   walletIcon: string;
@@ -30,26 +26,6 @@ export interface BindStepsDataType extends BindType {
 }
 
 export const BindTypes: BindType[] = [
-  {
-    bindType: 'eth',
-    chainIcon: LOGO_ETHEREUM,
-    chainName: 'Ethereum',
-    walletIcon: LOGO_METAMASK,
-    walletName: 'MetaMask',
-    walletType: WalletType.MetaMask,
-    site: 'https://metamask.io/',
-    themeColor: '#ff7324',
-  },
-  {
-    bindType: 'neo',
-    chainIcon: LOGO_NEO,
-    chainName: 'Neo',
-    walletIcon: LOGO_NEOLINE,
-    walletName: 'NeoLine',
-    walletType: WalletType.NeoLine,
-    site: 'https://neoline.io/',
-    themeColor: '#00e599',
-  },
   {
     bindType: 'solana',
     chainIcon: LOGO_SOLANA,
