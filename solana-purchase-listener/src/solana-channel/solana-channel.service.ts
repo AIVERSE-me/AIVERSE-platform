@@ -19,7 +19,6 @@ console.log("!proxy!")
 export class SolanaChannelService {
     private logger = new Logger(SolanaChannelService.name);
     private connection: Connection;
-    private lastSignature: string;
 
     constructor(
         private readonly datasource: DataSource,
@@ -30,53 +29,36 @@ export class SolanaChannelService {
       }
     
     async onModuleInit() {
-      this.lastSignature = '';
-      this.loopSync();
-
-      const network = 'https://api.devnet.solana.com';
-      this.connection = new Connection(network);
-      const myAddress = new PublicKey('3wHsJ2QxYNBoWJ85uhymHriZBvbg1spticqWy1JLFEh2');
-      // const transactionWithMeta = await this.connection.getParsedTransaction('2G1zXYPZBXpnyuE44DWjdj6dtEQhWPFt1JhTJ1rZsZ7LaFRqJe3gv8UgFDKjVsiUMm4NtKd1PjggUPfcgJajyjV1', 'finalized');
-      // const message = transactionWithMeta.transaction.message;
-      // console.log(message.instructions[2] as ParsedInstruction);
-      // const x = await this.connection.getConfirmedSignaturesForAddress2(myAddress)
-      // console.log(x);
+      this.loopSync().catch((err) => {
+        this.logger.error('Solana: failed to sync purchase', err);
+      });
     }
 
     private async loopSync(){
+      this.connection = new Connection(this.configService.get('ENDPOINT'));
 
-      const network = 'https://api.devnet.solana.com';
-      this.connection = new Connection(network);
-
-      const tokenAddres = new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr');
-      const myAddress = new PublicKey('3wHsJ2QxYNBoWJ85uhymHriZBvbg1spticqWy1JLFEh2');
+      const myAddress = new PublicKey(this.configService.get('RECEIVER_TOKEN_ACCOUNT'));
       const programId = this.configService.get('PROGRAM_ID') as string;
       const programPublickey = new PublicKey(programId);
-      const LOOP_INTERVAL = 20;
-
+      const LOOP_INTERVAL = this.configService.get('LOOP_INTERVAL');
+      this.logger.debug(`start listener: solana purchase`);
       while (true) {
         try {
           const ctx = new TransactionContext(this.datasource);
           await ctx.run(async (em, ctx) => {
-            // 获取全部交易
             const transactions = await this.connection.getConfirmedSignaturesForAddress2(myAddress);
             for (const transfer of transactions) {
               const blockTime = transfer.blockTime;
               const slot = transfer.slot;
               const signature = transfer.signature;
-              // 查询是否已经记录
               const repo = em.getRepository(SolanaTokenTransfer);
               if (await repo.exist({
                 where: {blockIndex: slot, timestamp: blockTime},
               })) {
                 break;
               }
-              // 获取交易信息
               const transactionWithMeta = await this.connection.getParsedTransaction(signature, 'finalized');
                if(transactionWithMeta) {
-                      this.lastSignature = signature;
-                      // console.log(transactionWithMeta);
-      
                       const message = transactionWithMeta.transaction.message;
       
                       const sender = message.accountKeys[0].pubkey.toBase58();
@@ -91,7 +73,6 @@ export class SolanaChannelService {
                       }
       
                       if (receiver == this.configService.get('RECEIVER_ACCOUNT')) {
-                        // console.log(message.instructions[2] as ParsedInstruction);
                         const parsed = (message.instructions[2] as ParsedInstruction).parsed;
                         let amount: string;
                         if (parsed.type == 'transferChecked') {
@@ -127,88 +108,12 @@ export class SolanaChannelService {
                             txHash: signature,
                           });}}}
             }
-            // this.connection.onAccountChange(myAddress,async (transferLogs) => {
-            //   console.log(transferLogs.data);
-              // const log = transferLogs.logs;
-              // console.log(log);
-              // if ('Transfer'.indexOf(log[1])) {
-              //   const signature = transferLogs.signature;
-    
-              //   console.log(this.lastSignature);
-              //   console.log(signature);
-    
-              //   if (this.lastSignature != signature) {
-    
-              //     const transactionWithMeta = await this.connection.getParsedTransaction(signature, 'finalized');
-              //     if(transactionWithMeta) {
-              //       this.lastSignature = signature;
-              //       // console.log(transactionWithMeta);
-    
-              //       const message = transactionWithMeta.transaction.message;
-    
-              //       const sender = message.accountKeys[0].pubkey.toBase58();
-    
-              //       const tokenReceiver = message.accountKeys[1].pubkey;
-              //       let receiver = '';
-              //       try {
-              //         receiver = (await getAccount(this.connection, tokenReceiver, 'confirmed', programPublickey)).owner.toBase58();
-              //       } catch(err) {
-              //         this.logger.debug(`${tokenReceiver}`)
-              //         receiver = 'can not';
-              //       }
-    
-              //       if (receiver == this.configService.get('RECEIVER_ACCOUNT')) {
-              //         console.log(message.instructions[2] as ParsedInstruction);
-              //         const parsed = (message.instructions[2] as ParsedInstruction).parsed;
-              //         let amount: string;
-              //         if (parsed.type == 'transferChecked') {
-              //           amount = (message.instructions[2] as ParsedInstruction).parsed.info.tokenAmount.amount;
-              //           await this.createTransfer({
-              //             tx: signature,
-              //             from: sender,
-              //             to: receiver,
-              //             blockIndex: transactionWithMeta.slot,
-              //             amount: amount,
-              //             timestamp: transactionWithMeta.blockTime.toString(),
-              //           });
-              //           await this.addBullJob({
-              //             address: sender,
-              //             amount: amount,
-              //             orderId: transactionWithMeta.slot.toString(),
-              //             txHash: signature,
-              //           });
-              //         } else if (parsed.type == 'transfer') {
-              //           amount = (message.instructions[2] as ParsedInstruction).parsed.info.amount;
-              //           await this.createTransfer({
-              //             tx: signature,
-              //             from: sender,
-              //             to: receiver,
-              //             blockIndex: transactionWithMeta.slot,
-              //             amount: amount,
-              //             timestamp: transactionWithMeta.blockTime.toString(),
-              //           });
-              //           await this.addBullJob({
-              //             address: sender,
-              //             amount: amount,
-              //             orderId: transactionWithMeta.slot.toString(),
-              //             txHash: signature,
-              //           });
-              //         }
-              //       }
-              //     }
-              //   }
-                
-              // }
-      
-            // }, 'max');
           });
         } catch (err) {
           this.logger.error(err);
         } finally {
           await new Promise((res) => setTimeout(res, LOOP_INTERVAL * 1000));
         }
-  
-        
       }
     }
 

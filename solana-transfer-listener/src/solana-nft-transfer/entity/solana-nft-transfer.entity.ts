@@ -23,6 +23,14 @@ import {
     @Index()
     @Column({ length: 256 })
     txHash: string;
+
+    @Index()
+    @Column({ length: 256 })
+    uri: string;
+
+    @Index()
+    @Column({ length: 256 })
+    address: string;
   
     @Index()
     @Column({ length: 256 })

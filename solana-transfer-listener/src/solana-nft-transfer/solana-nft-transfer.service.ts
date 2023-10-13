@@ -7,7 +7,8 @@ import { TRANSFER_CHANNEL_QUEUE, TransferChannelJobData } from './mq/solana-nft-
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TransactionContext } from 'src/common/transcation-context';
 import { SolanaNftTransfer } from './entity/solana-nft-transfer.entity';
-import { Metaplex } from "@metaplex-foundation/js";
+import { Metadata, Metaplex } from "@metaplex-foundation/js";
+import { getAccount } from '@solana/spl-token';
 
 const proxy = require("node-global-proxy").default;
 proxy.setConfig("http://127.0.0.1:7890");
@@ -28,22 +29,32 @@ export class SolanaNftTransferService {
       ) {}
     
     async onModuleInit() {
-      // console.log(Buffer.from('23d19c30-6f4c-4595-8b3b-8cd078303f8c').toString('base64'));
-      await this.listenNftTransfer();
+      // const mintAddress = new PublicKey("C1m5PadAuY5tujZqCWkk3Em3fNnPfQJWis3DcK6exLn7");
+      // const network = 'https://api.devnet.solana.com';
+      // this.connection = new Connection(network);
+      // // const metaplex = new Metaplex(this.connection);
+      // // const nft = await metaplex.nfts().findByMint({ mintAddress });
+      // // console.log(JSON.stringify(nft));
+      // // console.log(await this.connection.getTokenSupply(mintAddress));
+      // const programId = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+      // const newTokenOwner = (await this.connection.getTokenLargestAccounts(mintAddress)).value[0].address;
+      // const newOwner = (await getAccount(this.connection, newTokenOwner, 'confirmed', programId)).owner.toBase58();
+      // console.log(newOwner);
+      this.listenNftTransfer().catch((err) => {
+        this.logger.error('Solana: failed to sync transfer', err);
+      });
     }
 
     private async listenNftTransfer() {
-      const LOOP_INTERVAL = 20;
-      const network = 'https://api.devnet.solana.com';
+      this.logger.debug(`start listener: solana nft transfer`);
+      const LOOP_INTERVAL = +this.configService.get('LOOP_INTERVAL');
+      const network = this.configService.get('ENDPOINT');
       this.connection = new Connection(network);
-
       const programId = new PublicKey(this.configService.get('NFT_PROGRAM_ID') as string);
-      const programAddress = new PublicKey(this.configService.get('NFT_PROGRAM_ADDRESS') as string);
-      const ctx = new TransactionContext(this.datasource);
+      const programToken = new PublicKey(this.configService.get('TOKEN_PROGRAM') as string);
 
       const metaplex = new Metaplex(this.connection);
-      console.log(`开始获取全部nfts`);
-      console.log(programId);
+      // console.log(programId);
       while (true){
         try {
           const ctx = new TransactionContext(this.datasource);
@@ -52,17 +63,18 @@ export class SolanaNftTransferService {
               creator: programId,
               position: 1,
             });
-            console.log(`获取成功`);
-            console.log(`${JSON.stringify(nfts)}`);
-            for (const nft of nfts) {
+            // console.log(JSON.stringify(nfts));
+            const repo = em.getRepository(SolanaNftTransfer);
+            const localNftsNum = await repo.count();
+            this.logger.debug(`Total: ${nfts.length} nfts; Local: ${localNftsNum}`);
+            for (let nft of nfts) {
+              nft = nft as Metadata;
               const uri = nft.uri;
               const name = nft.name;
               const type = name.split('#')[0];
               const offLineId = (uri.split('/').pop()).split('.')[0];
               let oldOwner = '';
-              const newOwner = nft.creators[nft.creators.length - 1].address.toBase58();
-              // 判断是否存在
-              const repo = em.getRepository(SolanaNftTransfer);
+              let newOwner = '';
               if (await repo.exist({
                 where: {nftTokenId: name},
               })) {
@@ -71,16 +83,15 @@ export class SolanaNftTransferService {
                     nftTokenId: name,
                   }
                 });
-                // 判断是否有更新
-                if (transferInfo.creatorNum != nft.creators.length) {
+                const newTokenOwner = (await this.connection.getTokenLargestAccounts(nft.mintAddress)).value[0].address;
+                newOwner = (await getAccount(this.connection, newTokenOwner, 'confirmed', programToken)).owner.toBase58();
+                if (newOwner != transferInfo.newOwner) {
                   oldOwner = transferInfo.newOwner;
                   await this.addBullJob(oldOwner, newOwner, name, '', type, offLineId);
-                  // todo 更新数据库数据
-                  await this.updateTransfer(name, nft.creators.length);
+                  await this.updateTransfer(name, nft.creators.length, newOwner);
                 }
               } else {
-                // 创建数据库
-                // 发起
+                newOwner = nft.creators[nft.creators.length - 1].address.toBase58();
                 await this.creatTransfer(
                   0,
                   'blockHash',
@@ -90,6 +101,8 @@ export class SolanaNftTransferService {
                   'SYSTEM',
                   name,
                   nft.creators.length,
+                  uri,
+                  nft.address.toBase58(),
                 );
                 await this.addBullJob('SYSTEM', newOwner, name, '', type, offLineId)
               }
@@ -112,6 +125,8 @@ export class SolanaNftTransferService {
         oldOwner: string,
         nftTokenId: string,
         creatorNum: number,
+        uri: string,
+        address: string,
         ctx?: TransactionContext,
       ): Promise<SolanaNftTransfer> {
         ctx = ctx || new TransactionContext(this.datasource);
@@ -126,6 +141,8 @@ export class SolanaNftTransferService {
             oldOwner: oldOwner,
             nftTokenId: nftTokenId,
             creatorNum: creatorNum,
+            uri: uri,
+            address: address,
           });
           const creattransferinfo = await repo.save(creatRepo);
           return creattransferinfo;
@@ -135,6 +152,7 @@ export class SolanaNftTransferService {
     async updateTransfer(
       name: string,
       creatorNum: number,
+      newOwner: string,
       ctx?: TransactionContext,
     ): Promise<SolanaNftTransfer>{
       ctx = ctx || new TransactionContext(this.datasource);
@@ -146,6 +164,8 @@ export class SolanaNftTransferService {
           }
         });
         transferInfo.creatorNum = creatorNum;
+        transferInfo.oldOwner = transferInfo.newOwner;
+        transferInfo.newOwner = newOwner;
         const updateTransferInfo = await repo.save(transferInfo);
         return updateTransferInfo;
       })
