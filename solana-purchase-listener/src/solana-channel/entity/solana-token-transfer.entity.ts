@@ -38,8 +38,8 @@ import {
     @Column({ length: 128 })
     amount: string;
   
-    @Column({ length: 128 })
-    timestamp: string;
+    @Column({ type: 'int' })
+    timestamp: number;
   
     @CreateDateColumn()
     createTime: Date;

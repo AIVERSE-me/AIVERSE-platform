@@ -23,6 +23,14 @@ import {
     @Index()
     @Column({ length: 256 })
     txHash: string;
+
+    @Index()
+    @Column({ length: 256 })
+    uri: string;
+
+    @Index()
+    @Column({ length: 256 })
+    address: string;
   
     @Index()
     @Column({ length: 256 })
@@ -39,6 +47,10 @@ import {
     @Index()
     @Column({ length: 256 })
     nftTokenId: string;
+
+    @Index()
+    @Column({ type: 'int' })
+    creatorNum: number;
   
     @CreateDateColumn()
     createTime: Date;
