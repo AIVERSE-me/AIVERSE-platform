@@ -132,13 +132,6 @@ export class PhantomProvider implements WalletProvider {
     return encodeBase64(signature);
   }
 
-  setupPointContract(address: {
-    ethPurchaseContractAddress: string;
-    neoPurchaseWalletAddress: string;
-  }) {
-    // this.neoPurchaseWalletAddress = address.neoPurchaseWalletAddress;
-  }
-
   setupEnumerableNftContract(nft: string) {}
 
   async listNfts(nft: string, account?: string) {

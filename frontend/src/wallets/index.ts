@@ -12,10 +12,6 @@ export interface WalletProvider {
   disconnect: () => void;
   getWeb3: () => Web3 | undefined;
   signMessage: (message: string) => Promise<string>;
-  setupPointContract: (address: {
-    ethPurchaseContractAddress: string;
-    neoPurchaseWalletAddress: string;
-  }) => void;
   setupEnumerableNftContract: (nft: string) => void;
   listNfts: (nft: string, account?: string) => Promise<Nft[]>;
   listNftsMock: (

@@ -38,25 +38,6 @@ const usePoint = () => {
     },
   );
 
-  useRequest(
-    async () => {
-      if (!walletProviders) return;
-      const { ethPurchaseContractAddress, neoPurchaseWalletAddress } =
-        await getPurchaseContractAddress();
-      for (const provider of Object.values(walletProviders)) {
-        try {
-          provider.setupPointContract({
-            ethPurchaseContractAddress,
-            neoPurchaseWalletAddress,
-          });
-        } catch (e) {}
-      }
-    },
-    {
-      refreshDeps: [walletProviders],
-    },
-  );
-
   const { data: pointPrices } = useRequest(
     async () => {
       if (!currentUser) return;
